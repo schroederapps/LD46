@@ -1,0 +1,182 @@
+settings = {}
+--------------------------------------------------------------------------------
+-- ORIENTATION SETTINGS:
+--------------------------------------------------------------------------------
+settings.orientation = {
+	default = 'portrait',
+	supported = { 'portrait' }
+	-- portrait, portraitUpsideDown, landscapeLeft, landscapeRight --
+}
+
+--------------------------------------------------------------------------------
+-- CORONA SDK PLUGINS:
+--------------------------------------------------------------------------------
+settings.plugins = {
+
+}
+
+--------------------------------------------------------------------------------
+-- CORONA SDK SPLASH SCREEN:
+--------------------------------------------------------------------------------
+settings.splashScreen = {
+  enable = false,
+}
+
+--------------------------------------------------------------------------------
+-- iOS SETTINGS:
+--------------------------------------------------------------------------------
+settings.iphone = {
+	components = {},
+  xcassets = 'ios_icons.xcassets',
+	plist = {
+		UIStatusBarHidden = true,
+    MinimumOSVersion = '9.0',
+    NSAppTransportSecurity = {
+      NSAllowsArbitraryLoads = false,
+      NSExceptionDomains = {
+        ['jasonschroeder.com'] = {
+          NSIncludesSubdomains = true,
+          NSThirdPartyExceptionAllowsInsecureHTTPLoads = true,
+        },
+      },
+    },
+    CFBundleURLTypes = {
+      {
+        CFBundleURLSchemes = {
+          'schroederapps-template',
+        },
+      },
+    },
+		UILaunchStoryboardName = 'LaunchScreen',
+	},
+}
+
+--------------------------------------------------------------------------------
+-- ANDROID SETTINGS:
+--------------------------------------------------------------------------------
+settings.android = {
+	largeHeap=true,
+	usesExpansionFile = false,
+	usesPermissions = {
+		'android.permission.INTERNET',
+		'com.android.vending.CHECK_LICENSE',
+		'android.permission.WRITE_EXTERNAL_STORAGE',
+		--'android.permission.ACCESS_COARSE_LOCATION',
+		--'android.permission.ACCESS_FINE_LOCATION',
+		--'android.permission.READ_PHONE_STATE',
+		--'android.permission.ACCESS_NETWORK_STATE',
+		--'android.permission.CAMERA',
+    --'android.permission.GET_ACCOUNTS'
+	},
+
+	usesFeatures = {
+		--{ name = 'android.hardware.camera', required = false },
+		--{ name = 'android.hardware.location', required = false },
+		--{ name = 'android.hardware.location.gps', required = false },
+	},
+}
+
+--------------------------------------------------------------------------------
+-- DESKTOP BUILD SETTINGS:
+--------------------------------------------------------------------------------
+settings.window = {
+  defaultMode = 'normal',
+  defaultViewWidth = 1024,
+  defaultViewHeight = 768,
+  resizable = false,
+  minViewWidth = 640,
+  minViewHeight = 480,
+  enableCloseButton = true,
+  enableMinimizeButton = true,
+  enableMaximizeButton = false,
+  suspendWhenMinimized = false,
+  showWindowTitle = true,
+  titleText = {
+    --default = 'Template',
+  },
+}
+
+--------------------------------------------------------------------------------
+-- MAC OS SETTINGS:
+--------------------------------------------------------------------------------
+settings.osx = {
+  plist = {
+    NSHumanReadableCopyright = 'Copyright © 2019 Jason Schroeder',
+  },
+}
+
+--------------------------------------------------------------------------------
+-- MS WINDOWS SETTINGS:
+--------------------------------------------------------------------------------
+settings.win32 = {
+  singleInstance = true,
+}
+
+--------------------------------------------------------------------------------
+-- tvOS SETTINGS:
+--------------------------------------------------------------------------------
+settings.tvos = {
+  icon = {
+    small = {
+      'Icon-tvOS-Small-4.png',
+      'Icon-tvOS-Small-3.png',
+      'Icon-tvOS-Small-2.png',
+      'Icon-tvOS-Small-1.png',
+    },
+    large = {
+      'Icon-tvOS-Large-4.png',
+      'Icon-tvOS-Large-3.png',
+      'Icon-tvOS-Large-2.png',
+      'Icon-tvOS-Large-1.png',
+    }
+  },
+  topShelfImage = 'Icon-tvOS-TopShelf.png',
+  topShelfImageWide = 'Icon-tvOS-TopShelfWide.png',
+  launchImage = 'Icon-tvOS-Launch.png',
+}
+
+--------------------------------------------------------------------------------
+-- FILES TO EXCLUDE FROM BUILD:
+--------------------------------------------------------------------------------
+settings.excludeFiles = {
+  all = {
+    'workFiles/*',
+    '*.keystore',
+    'README.md',
+    'work_files/*',
+    'punch_list.md',
+  },
+  iphone = {
+    'Icon-*dpi.png',
+    '*.ogg',
+    'Icon*.ico',
+    'Icon*.icns',
+  },
+  android = {
+    '*.acc',
+    'ios_icons.xcassets*',
+    'LaunchScreen.storyboardc',
+    'Icon*.ico',
+    'Icon*.icns',
+    'workFiles/**',
+    'work_files/**',
+  },
+  osx = {
+    'ios_icons.xcassets*',
+    'LaunchScreen.storyboardc',
+    'Icon-*dpi.png',
+    'Icon*.ico',
+  },
+  win32 = {
+    'ios_icons.xcassets*',
+    'LaunchScreen.storyboardc',
+    'Icon-*dpi.png',
+    'Icon*.icns',
+  },
+  tvos = {
+    'Icon-*dpi.png',
+    '*.ogg',
+    'Icon*.ico',
+    'Icon*.icns',
+  },
+}
