@@ -2,21 +2,16 @@
 -- INITIALIZE SCENE & LOAD LIBRARIES
 --------------------------------------------------------------------------------
 local scene = composer.newScene()
-local dials = require('objects.dials')
+local devices = require('objects.devices')
 
 --------------------------------------------------------------------------------
 -- VARIABLE DECLARATIONS
 --------------------------------------------------------------------------------
 
 ----------------------------------------
--- DISPLAY GROUPS
-----------------------------------------
-local group
-
-----------------------------------------
 -- DISPLAY OBJECTS
 ----------------------------------------
-local plastic, dial
+local group, bg, device
 
 ----------------------------------------
 -- FUNCTIONS
@@ -46,12 +41,12 @@ local sounds = {}
 function scene:create( event )
 	group = self.view
 
-  plastic = display.newRect(group, centerX, centerY, screenWidth, screenHeight)
-  plastic.fill = {
-    type = 'image',
-    filename = 'images/plastic.png',
-  }
-  dial = dials.new()
+  bg = display.newImageRect(group, 'images/bg.png', screenWidth, screenHeight)
+  bg.x, bg.y = centerX, centerY
+
+  device = devices.new({
+    parent = group,
+  })
 
 
 end

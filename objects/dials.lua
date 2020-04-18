@@ -1,6 +1,5 @@
 local _M = {}
 local math = math
-local sqrt = math.sqrt
 local click = audio.loadSound('audio/click.wav')
 local click_distance = 0
 local vibrator = require('plugin.vibrator')
@@ -23,26 +22,45 @@ local function set_defaults(params)
   return params
 end
 
-local function distance(obj1, obj2)
-  local dx = obj1.x - obj2.x
-  local dy = obj1.y - obj2.y
-  return sqrt(dx^2 + dy^2)
+local function normalize_vectors(obj1, obj2)
+  local x1, y1 = obj1.x, obj1.y
+  pcall(function()
+    x1, y1 = obj1:localToContent(0, 0)
+  end)
+  local x2, y2 = obj2.x, obj2.y
+  pcall(function()
+    x2, yx = obj2:localToContent(0, 0)
+  end)
+  return x1, y1, x2, y2
 end
 
-local function angleBetween ( srcObj, dstObj )
-	local xDist = dstObj.x-srcObj.x ; local yDist = dstObj.y-srcObj.y
-	local angleBetween = math.deg( math.atan( yDist/xDist ) )
-	if ( srcObj.x < dstObj.x ) then angleBetween = angleBetween+90 else angleBetween = angleBetween-90 end
-	return angleBetween
+local function get_distance(obj1, obj2)
+  local x1, y1, x2, y2 = normalize_vectors(obj1, obj2)
+  local dx = x1 - x2
+  local dy = y1 - y2
+  return math.sqrt(dx^2 + dy^2)
+end
+
+local function get_angle(obj1, obj2)
+  local x1, y1, x2, y2 = normalize_vectors(obj1, obj2)
+	local xDist = x1 - x2
+  local yDist = y1 - y2
+	local angle = math.deg(math.atan(yDist/xDist))
+	if (x1 < x2) then
+    angle = angle + 90
+  else
+    angle = angle - 90
+  end
+	return angle
 end
 
 local function touch_spin(self, event)
   local phase = event.phase
   local platter = self.platter
-  local inBounds = distance(self, event) < platter.width * .5
-  local angle = angleBetween(self, event)
-
+  local inBounds = get_distance(self, event) < platter.width * .5
+  local angle = get_angle(self, event)
   if not inBounds then
+    self.power = 0
     self.hasFocus = false
     display.currentStage:setFocus(nil, event.id)
   elseif not self.hasFocus then
@@ -66,8 +84,10 @@ local function touch_spin(self, event)
       end
       click_distance = 0
     end
-    self.power = self.power + deltaPower
+    self.power = deltaPower*10
+    print(self.power)
   elseif phase == 'cancelled' or phase == 'ended' then
+    self.power = 0
     self.hasFocus = nil
     display.currentStage:setFocus(nil, event.id)
   end
@@ -88,11 +108,15 @@ function _M.new(params)
 
   local base = display.newCircle(dial, 0, 0, params.diameter * .5 + 10)
   base.fill = {type = 'image', filename = 'images/plastic.png'}
-  base.blendMode = 'multiply'
+  dial.base = base
 
   local platter = display.newCircle(dial, 0, 0, params.diameter * .5)
-  platter.fill = {type = 'image', filename = 'images/dial.png'}
+  platter.fill = {type = 'image', filename = 'images/dial2.png'}
   dial.platter = platter
+
+  local overlay = display.newCircle(dial, 0, 0, params.diameter * .5)
+  overlay.fill = {type = 'image', filename = 'images/overlay.png'}
+  overlay.blendMode = 'screen'
 
   return dial
 end
