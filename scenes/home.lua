@@ -2,6 +2,7 @@
 -- INITIALIZE SCENE & LOAD LIBRARIES
 --------------------------------------------------------------------------------
 local scene = composer.newScene()
+local cranks = require('objects.cranks')
 
 --------------------------------------------------------------------------------
 -- VARIABLE DECLARATIONS
@@ -45,6 +46,7 @@ local sounds = {}
 function scene:create( event )
 	group = self.view
 
+  local crank = cranks.new()
 
 
 end
