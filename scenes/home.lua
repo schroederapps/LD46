@@ -2,7 +2,7 @@
 -- INITIALIZE SCENE & LOAD LIBRARIES
 --------------------------------------------------------------------------------
 local scene = composer.newScene()
-local cranks = require('objects.cranks')
+local dials = require('objects.dials')
 
 --------------------------------------------------------------------------------
 -- VARIABLE DECLARATIONS
@@ -16,7 +16,7 @@ local group
 ----------------------------------------
 -- DISPLAY OBJECTS
 ----------------------------------------
-local objects
+local plastic, dial
 
 ----------------------------------------
 -- FUNCTIONS
@@ -46,7 +46,12 @@ local sounds = {}
 function scene:create( event )
 	group = self.view
 
-  local crank = cranks.new()
+  plastic = display.newRect(group, centerX, centerY, screenWidth, screenHeight)
+  plastic.fill = {
+    type = 'image',
+    filename = 'images/plastic.png',
+  }
+  dial = dials.new()
 
 
 end

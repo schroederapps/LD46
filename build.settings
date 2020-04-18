@@ -12,7 +12,7 @@ settings.orientation = {
 -- CORONA SDK PLUGINS:
 --------------------------------------------------------------------------------
 settings.plugins = {
-
+  ['plugin.vibrator'] = {publisherId = 'com.spiralcodestudio'}
 }
 
 --------------------------------------------------------------------------------
@@ -81,11 +81,11 @@ settings.android = {
 --------------------------------------------------------------------------------
 settings.window = {
   defaultMode = 'normal',
-  defaultViewWidth = 1024,
-  defaultViewHeight = 768,
+  defaultViewWidth = 400,
+  defaultViewHeight = 800,
   resizable = false,
-  minViewWidth = 640,
-  minViewHeight = 480,
+  minViewWidth = 400,
+  minViewHeight = 800,
   enableCloseButton = true,
   enableMinimizeButton = true,
   enableMaximizeButton = false,
@@ -101,7 +101,7 @@ settings.window = {
 --------------------------------------------------------------------------------
 settings.osx = {
   plist = {
-    NSHumanReadableCopyright = 'Copyright © 2019 Jason Schroeder',
+    NSHumanReadableCopyright = 'Copyright © 2020 Jason Schroeder',
   },
 }
 

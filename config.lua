@@ -1,8 +1,8 @@
 application = {
 	showRuntimeErrors = false,
 	content = {
-		width = 768,
-		height = 1024,
+		width = 400,
+		height = 800,
 		scale = "letterBox",
 		fps = 60,
 		imageSuffix = {["@2x"] = 1.4}
