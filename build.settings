@@ -9,14 +9,14 @@ settings.orientation = {
 }
 
 --------------------------------------------------------------------------------
--- CORONA SDK PLUGINS:
+-- PLUGINS:
 --------------------------------------------------------------------------------
 settings.plugins = {
   ['plugin.vibrator'] = {publisherId = 'com.spiralcodestudio'}
 }
 
 --------------------------------------------------------------------------------
--- CORONA SDK SPLASH SCREEN:
+-- DISABLE SOLAR2D SPLASH SCREEN:
 --------------------------------------------------------------------------------
 settings.splashScreen = {
   enable = false,
@@ -29,21 +29,18 @@ settings.iphone = {
 	components = {},
   xcassets = 'ios_icons.xcassets',
 	plist = {
+    CFBundleDisplayName = "Boogaloo",
+    ITSAppUsesNonExemptEncryption = false,
 		UIStatusBarHidden = true,
-    MinimumOSVersion = '9.0',
+    MinimumOSVersion = '10.0',
     NSAppTransportSecurity = {
       NSAllowsArbitraryLoads = false,
-      NSExceptionDomains = {
-        ['jasonschroeder.com'] = {
-          NSIncludesSubdomains = true,
-          NSThirdPartyExceptionAllowsInsecureHTTPLoads = true,
-        },
-      },
+      NSExceptionDomains = {},
     },
     CFBundleURLTypes = {
       {
         CFBundleURLSchemes = {
-          'schroederapps-template',
+          'batterydrainboogaloo',
         },
       },
     },

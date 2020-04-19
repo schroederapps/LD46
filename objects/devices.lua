@@ -48,7 +48,7 @@ end
 
 local function game_over(self)
   native.showAlert("Game Over", "Crank the battery back up to try again.", {"OK"}, function()
-    self:reset()
+    self.dial.mode = nil
   end)
 end
 
@@ -267,7 +267,7 @@ function _M.new(params)
   -- scoreboard
   local score_label = display.newText({
     parent = device,
-    text = 'SCORE:',
+    text = 'Score:',
     font = fonts.archistico,
     fontSize = 20,
     x = meter.x - meter.width * .5 + 23,
