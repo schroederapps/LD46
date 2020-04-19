@@ -3,7 +3,7 @@
 --------------------------------------------------------------------------------
 local scene = composer.newScene()
 local devices = require('objects.devices')
-
+local random = math.random
 --------------------------------------------------------------------------------
 -- VARIABLE DECLARATIONS
 --------------------------------------------------------------------------------
@@ -11,7 +11,7 @@ local devices = require('objects.devices')
 ----------------------------------------
 -- DISPLAY OBJECTS
 ----------------------------------------
-local group, bg, device
+local group, bg, device, bubbleGroup
 
 ----------------------------------------
 -- FUNCTIONS
@@ -32,7 +32,14 @@ local sounds = {}
 -- FUNCTIONS
 --------------------------------------------------------------------------------
 
-
+local function release_bubble()
+  local bubble = display.newRect(bubbleGroup, random(screenLeft, screenRight), screenBottom + 20, random(4, 12), random(4,12))
+  bubble.alpha = random() * .5
+  bubble.blendMode = 'screen'
+  bubble:setFillColor(random())
+  transition.to(bubble, {y = screenTop - 20, x = bubble.x + random(-50, 50), time = random(3000, 8000), alpha = bubble.alpha * .1, transition = easing.outSine, onComplete = display.remove})
+  timer.performWithDelay(random(10, 200), release_bubble)
+end
 
 
 --------------------------------------------------------------------------------
@@ -42,11 +49,17 @@ function scene:create( event )
 	group = self.view
 
   bg = display.newImageRect(group, 'images/bg.png', screenWidth, screenHeight)
+  bg:setFillColor(.5)
   bg.x, bg.y = centerX, centerY
+
+  bubbleGroup = display.newGroup()
+  group:insert(bubbleGroup)
 
   device = devices.new({
     parent = group,
   })
+
+  release_bubble()
 
 
 end

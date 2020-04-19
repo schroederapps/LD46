@@ -63,7 +63,7 @@ local function init()
     Settings = require ('utilities.settings')
     Settings.init(default_settings)
   end
-  
+
   fonts = require('fonts.fonts')
 
   -- global placement functions
@@ -89,6 +89,18 @@ local function init()
       end
     end
     return formatted
+  end
+
+  -- global Shuffle table function
+  function Shuffle( t )
+    local rand = math.random
+    local iterations = #t
+    local j
+    for i = iterations, 2, -1 do
+        j = rand(i)
+        t[i], t[j] = t[j], t[i]
+    end
+    return t
   end
 
   -- device/environment global variables:

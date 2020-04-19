@@ -23,6 +23,11 @@ local the_score = 0
 --------------------------------------------------------------------------------
 -- PRIVATE FUNCTIONS
 --------------------------------------------------------------------------------
+local function reset_game(self)
+  the_score = 0
+  self.dial.mode = nil
+end
+
 local function set_defaults(params)
   local defaults = {
     x = centerX,
@@ -60,20 +65,42 @@ local function update_battery(self)
   end
   last_timestamp = timestamp
   self.level = self.level + self.dial.power
-  self.meter.barGroup.alpha = self.level/100 + .25
   self.active_game_light.on = self.active
   self.score_display.text = comma_value(the_score)
   if self.level >= 100 then
     self.level = 100
     self.active = true
   elseif self.level <= 0 then
+    self.level = 0
     if self.active then
       last_timestamp = nil
       self.active = false
-      native.showAlert("Game Over", "Crank the battery back up to try again.", {"OK"}, function() the_score = 0 end)
+      native.showAlert("Game Over", "Crank the battery back up to try again.", {"OK"}, function() reset_game(self) end)
     end
   end
   self.meter.level = self.level
+end
+
+local function shuffle_buttons(self)
+  display.currentStage:setFocus(nil)
+  local x, y = 0, 0
+  for i, button in pairs(self.buttons) do
+    button:reset(200, i*30)
+  end
+  Shuffle(self.buttons)
+  for i, button in pairs(self.buttons) do
+    button.x, button.y = x, y
+    if button.x + button.contentWidth > self.bg.width * .8 then
+      x = 0
+      y = button.y + button.contentHeight
+    else
+      x = x + button.contentWidth
+    end
+  end
+end
+
+local function button_listener(event)
+  --event.target.device:shuffle()
 end
 
 local function finalize(self)
@@ -91,18 +118,14 @@ function _M.new(params)
   device.level = 0
 
   -- draw device image
-  local border = display.newRoundedRect(device, 0, 0, params.width, params.height, params.cornerRadius + params.strokeWidth * .5)
-  border.fill = {
-    type = 'image',
-    filename = 'images/plastic.png',
-  }
-  border:setFillColor(unpack(params.strokeColor))
-
   local bg = display.newRoundedRect(device, 0, 0, params.width - params.strokeWidth, params.height - params.strokeWidth, params.cornerRadius)
   bg.fill = {
     type = 'image',
-    filename = 'images/plastic.png',
+    filename = 'images/glass.png',
   }
+  bg.alpha = 1
+  bg.blendMode = 'screen'
+  device.bg = bg
 
   -- add the dial
   local dial = dials.new({
@@ -111,13 +134,12 @@ function _M.new(params)
     diameter = params.width * .55,
     parent = device,
   })
-  dial.base:setFillColor(unpack(params.strokeColor))
   device.dial = dial
 
   -- add the battery meter
   local meter = battery_meters.new({
     parent = device,
-    y = -params.height * .4,
+    y = -params.height * .5 + 90,
     x = 0,
     width = bg.width * .85,
     height = bg.width * .15,
@@ -128,8 +150,8 @@ function _M.new(params)
   -- add the active game light
   local active_game_light = indicator_lights.new({
     parent = device,
-    x = meter.x + meter.width * .49,
-    y = meter.y - meter.height * .5,
+    x = meter.x + meter.width * .5 - 15,
+    y = meter.y - meter.height * .5 + 5,
     anchorX = 1,
     anchorY = 1,
     height = 30,
@@ -137,7 +159,7 @@ function _M.new(params)
     on_sound = sounds.ding,
     off_sound = sounds.buzz,
   })
-  active_game_light:set_color({0, 1, 0})
+  active_game_light:set_color({.2, 1, .2})
   active_game_light.on = false
   device.active_game_light = active_game_light
 
@@ -147,11 +169,11 @@ function _M.new(params)
     text = 'SCORE:',
     font = fonts.archistico,
     fontSize = 20,
-    x = meter.x - meter.width * .47,
-    y = meter.y - meter.height * .5,
+    x = meter.x - meter.width * .5 + 23,
+    y = meter.y - meter.height * .5 + 3,
   })
   score_label.anchorX, score_label.anchorY = 0, 1
-  score_label:setFillColor(.8)
+  score_label:setFillColor(0)
 
   local score_display = display.newText({
     parent = device,
@@ -162,7 +184,7 @@ function _M.new(params)
     y = score_label.y,
   })
   score_display.anchorX, score_display.anchorY = 0, 1
-  score_display:setFillColor(1)
+  score_display:setFillColor(0)
   device.score_display = score_display
 
   -- add the color buttons
@@ -184,14 +206,17 @@ function _M.new(params)
       color = color,
       sound = "audio/button"..i..".wav"
     })
-    if button.x + button.contentWidth > bg.width * .8 then
-      x = 0
-      y = button.y + button.contentHeight + 15
-    else
-      x = x + button.contentWidth + 15
-    end
+    button:addEventListener('button_pressed', button_listener)
+    button.device = device
+    device.buttons[i] = button
   end
+  device.shuffle = shuffle_buttons
+  device:shuffle()
 
+  -- add the border
+  local border = display.newImage(device, 'images/device_border.png', true)
+  local border_scale = bg.width*1.1 / border.width
+  border.xScale, border.yScale = border_scale, border_scale
 
   -- object listeners
   device.enterFrame = update_battery

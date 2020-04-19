@@ -34,11 +34,13 @@ local function button_touch(self, event)
   local bounds = self.contentBounds
   local inBounds = (event.x >= bounds.xMin and event.x <= bounds.xMax) and (event.y >= bounds.yMin and event.y <= bounds.yMax)
 
-  if phase == 'began' then
+  if event.target.alpha < .98 then
+    return true
+  elseif phase == 'began' then
     self.hasFocus = true
     display.currentStage:setFocus(self, event.id)
     glow.alpha = 1
-    button:dispatchEvent('button_pressed')
+    button:dispatchEvent({name = 'button_pressed', target = button})
     if is_device then
       vibrator.cancel()
       vibrator.vibrate(1)
@@ -92,6 +94,14 @@ function _M.new(params)
   glow:setFillColor(unpack(params.color))
   glow.alpha = 0
   glow.blendMode = 'add'
+
+  function button:reset(time, delay)
+    transition.cancel(img2)
+    button.hasFocus = nil
+    img2.alpha = .4
+    glow.alpha = 0
+    transition.to(img2, {alpha = 1, time = time or 200, delay = 100})
+  end
 
   button.glow = glow
   img2.touch = button_touch
