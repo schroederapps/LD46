@@ -3,21 +3,36 @@ local buttons = require('objects.buttons')
 local dials = require('objects.dials')
 local battery_meters = require('objects.battery_meters')
 local indicator_lights = require('objects.indicator_lights')
+local command_bars = require('objects.command_bars')
 local buttons = require('objects.buttons')
 local sounds = {
   ding = audio.loadSound('audio/ding.wav'),
   buzz = audio.loadSound('audio/buzz.wav'),
 }
+local theme = 'glass'
 local button_colors = {
-  {255/255, 72/255, 176/255},
-  {255/255, 108/255, 47/255},
-  {0/255, 170/255, 147/255},
-  {130/255, 216/255, 213/255},
-  {255/255, 232/255, 0/255},
-  {255/255, 142/255, 145/255},
-  {255/255, 102/255, 94/255},
-  {0/255, 120/255, 191/255},
-  {0/255, 169/255, 92/255},
+  glass = {
+    {255/255, 50/255, 50/255},
+    {234/255, 173/255, 237/255},
+    {185/255, 252/255, 148/255},
+    {130/255, 216/255, 213/255},
+    {255/255, 232/255, 0/255},
+    {235/255, 191/255, 167/255},
+    {251/255, 107/255, 29/255},
+    {0/255, 120/255, 191/255},
+    {0/255, 150/255, 10/255},
+  },
+  wood_panel = {
+    {255/255, 72/255, 176/255},
+    {255/255, 108/255, 47/255},
+    {227/255, 200/255, 150/255},
+    {130/255, 216/255, 213/255},
+    {255/255, 232/255, 0/255},
+    {255/255, 142/255, 145/255},
+    {255/255, 102/255, 94/255},
+    {0/255, 120/255, 191/255},
+    {0/255, 169/255, 92/255},
+  }
 }
 local the_score = 0
 --------------------------------------------------------------------------------
@@ -25,7 +40,16 @@ local the_score = 0
 --------------------------------------------------------------------------------
 local function reset_game(self)
   the_score = 0
+  self.level = 100
+  self:shuffle()
   self.dial.mode = nil
+  self.active = true
+end
+
+local function game_over(self)
+  native.showAlert("Game Over", "Crank the battery back up to try again.", {"OK"}, function()
+    self:reset()
+  end)
 end
 
 local function set_defaults(params)
@@ -61,7 +85,7 @@ local function update_battery(self)
     self.level = self.level - percent
     the_score = the_score - delta * .003
     the_score = the_score + self.dial.power * .5
-    if the_score < 0 then the_score = 0 end
+    --if the_score < 0 then the_score = 0 end
   end
   last_timestamp = timestamp
   self.level = self.level + self.dial.power
@@ -69,13 +93,15 @@ local function update_battery(self)
   self.score_display.text = comma_value(the_score)
   if self.level >= 100 then
     self.level = 100
-    self.active = true
+    if not self.active then
+      self:reset()
+    end
   elseif self.level <= 0 then
     self.level = 0
     if self.active then
       last_timestamp = nil
       self.active = false
-      native.showAlert("Game Over", "Crank the battery back up to try again.", {"OK"}, function() reset_game(self) end)
+      self:game_over()
     end
   end
   self.meter.level = self.level
@@ -100,7 +126,42 @@ local function shuffle_buttons(self)
 end
 
 local function button_listener(event)
-  --event.target.device:shuffle()
+  local button = event.target
+  local device = button.device
+  local command_bar = device.command_bar
+  if device.active then
+    local correct = command_bar:check_color(button.color_index)
+    if correct then
+      button:play()
+      device.level = device.level + 5
+      the_score = the_score + 100
+    else
+      audio.play(sounds.buzz)
+      device.level = device.level - 5
+      the_score = the_score - 100
+    end
+    local shuffle1 = math.random()
+    local shuffle2 = math.random()
+    if math.abs(shuffle1 - shuffle2) < .05 then
+      device:shuffle()
+    else
+      local mode1 = math.random()
+      local mode2 = math.random()
+      if math.abs(mode1 - mode2) < .05 then
+        local n = math.random(3)
+        local modes = {'clockwise', 'counterclockwise', nil}
+        device.dial.mode = modes[n]
+      end
+    end
+  end
+end
+
+local function command_bar_listener(event)
+  local device = event.target.device
+  the_score = the_score - 100
+  device.level = device.level - 10
+  audio.play(sounds.buzz)
+  print("!")
 end
 
 local function finalize(self)
@@ -121,7 +182,7 @@ function _M.new(params)
   local bg = display.newRoundedRect(device, 0, 0, params.width - params.strokeWidth, params.height - params.strokeWidth, params.cornerRadius)
   bg.fill = {
     type = 'image',
-    filename = 'images/glass.png',
+    filename = 'images/' .. theme .. '.png',
   }
   bg.alpha = 1
   bg.blendMode = 'screen'
@@ -147,7 +208,8 @@ function _M.new(params)
   })
   device.meter = meter
 
-  -- add the active game light
+  -- add the active game light (REMOVED)
+  --[[
   local active_game_light = indicator_lights.new({
     parent = device,
     x = meter.x + meter.width * .5 - 15,
@@ -161,7 +223,46 @@ function _M.new(params)
   })
   active_game_light:set_color({.2, 1, .2})
   active_game_light.on = false
-  device.active_game_light = active_game_light
+  ]]
+  device.active_game_light = active_game_light or {}
+
+  -- add the color buttons
+  local buttonGroup = display.newGroup()
+  buttonGroup.anchorChildren = true
+  buttonGroup.y = -60
+  device:insert(buttonGroup)
+  device.buttons = {}
+  local x, y = 0, 0
+  for i, color in pairs(button_colors[theme]) do
+    local button = buttons.new({
+      parent = buttonGroup,
+      x = x,
+      y = y,
+      anchorX = 0,
+      anchorY = 0,
+      width = 100,
+      height = 100,
+      color = color,
+      sound = "audio/button"..i..".wav"
+    })
+    button.color_index = i
+    button:addEventListener('button_pressed', button_listener)
+    button.device = device
+    device.buttons[i] = button
+  end
+  device.shuffle = shuffle_buttons
+  device:shuffle()
+
+  -- add the command bar
+  local command_bar = command_bars.new({
+    parent = device,
+    x = -bg.width * .5 + 50,
+    y = -235,
+    colors = button_colors[theme],
+  })
+  device.command_bar = command_bar
+  command_bar.device = device
+  command_bar:addEventListener('overflow', command_bar_listener)
 
   -- scoreboard
   local score_label = display.newText({
@@ -187,32 +288,6 @@ function _M.new(params)
   score_display:setFillColor(0)
   device.score_display = score_display
 
-  -- add the color buttons
-  local buttonGroup = display.newGroup()
-  buttonGroup.anchorChildren = true
-  buttonGroup.y = -80
-  device:insert(buttonGroup)
-  device.buttons = {}
-  local x, y = 0, 0
-  for i, color in pairs(button_colors) do
-    local button = buttons.new({
-      parent = buttonGroup,
-      x = x,
-      y = y,
-      anchorX = 0,
-      anchorY = 0,
-      width = 100,
-      height = 100,
-      color = color,
-      sound = "audio/button"..i..".wav"
-    })
-    button:addEventListener('button_pressed', button_listener)
-    button.device = device
-    device.buttons[i] = button
-  end
-  device.shuffle = shuffle_buttons
-  device:shuffle()
-
   -- add the border
   local border = display.newImage(device, 'images/device_border.png', true)
   local border_scale = bg.width*1.1 / border.width
@@ -222,6 +297,9 @@ function _M.new(params)
   device.enterFrame = update_battery
   Runtime:addEventListener('enterFrame', device)
 
+  device.reset = reset_game
+  device.game_over = game_over
+
   device.finalize = finalize
   device:addEventListener('finalize')
 
@@ -229,6 +307,8 @@ function _M.new(params)
   device.anchorChildren = false
   params.parent:insert(device)
   device.x, device.y = params.x, params.y
+
+  --device:reset()
   return device
 end
 

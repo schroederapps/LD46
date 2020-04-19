@@ -30,7 +30,6 @@ local function set_state(self)
         audio.stop(32)
         audio.play(self.on_sound, {channel = 32})
       end
-      print(flare.alpha)
       flare.alpha = .12
       transition.cancel(flare)
       transition.to(flare, {alpha = 1, time = 150})
@@ -86,6 +85,7 @@ function _M.new(params)
   light.xScale, light.yScale = s, s
   light.x, light.y = params.x, params.y
   light.anchorX, light.anchorY = params.anchorX, params.anchorY
+
   return light
 end
 

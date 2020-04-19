@@ -45,13 +45,6 @@ local function button_touch(self, event)
       vibrator.cancel()
       vibrator.vibrate(1)
     end
-    if button.sound then
-      if is_android then
-        media.playSound(button.soundfile)
-      else
-        audio.play(button.sound)
-      end
-    end
   elseif phase == 'moved' and self.hasFocus then
     if not inBounds then
       glow.alpha = 0
@@ -62,6 +55,16 @@ local function button_touch(self, event)
     glow.alpha = 0
     self.hasFocus = nil
     display.currentStage:setFocus(nil, event.id)
+  end
+end
+
+local function play(self)
+  if self.sound then
+    if is_android then
+      media.playSound(self.soundfile)
+    else
+      audio.play(self.sound)
+    end
   end
 end
 
@@ -93,7 +96,7 @@ function _M.new(params)
   local glow = display.newImage(button, 'images/button_glow.png', true)
   glow:setFillColor(unpack(params.color))
   glow.alpha = 0
-  glow.blendMode = 'add'
+  glow.blendMode = 'screen'
 
   function button:reset(time, delay)
     transition.cancel(img2)
@@ -113,6 +116,8 @@ function _M.new(params)
 
   button.finalize = finalize
   button:addEventListener('finalize')
+
+  button.play = play
 
 
   -- placement
