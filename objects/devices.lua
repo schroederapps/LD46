@@ -3,9 +3,21 @@ local buttons = require('objects.buttons')
 local dials = require('objects.dials')
 local battery_meters = require('objects.battery_meters')
 local indicator_lights = require('objects.indicator_lights')
+local buttons = require('objects.buttons')
 local sounds = {
   ding = audio.loadSound('audio/ding.wav'),
-  buzz = audio.loadSound('audio/buzz.wav')
+  buzz = audio.loadSound('audio/buzz.wav'),
+}
+local button_colors = {
+  {255/255, 72/255, 176/255},
+  {255/255, 108/255, 47/255},
+  {0/255, 170/255, 147/255},
+  {255/255, 232/255, 0/255},
+  {130/255, 216/255, 213/255},
+  {255/255, 142/255, 145/255},
+  {0/255, 120/255, 191/255},
+  {255/255, 102/255, 94/255},
+  {0/255, 169/255, 92/255},
 }
 local the_score = 0
 --------------------------------------------------------------------------------
@@ -153,6 +165,33 @@ function _M.new(params)
   score_display:setFillColor(1)
   device.score_display = score_display
 
+  -- add the color buttons
+  local buttonGroup = display.newGroup()
+  buttonGroup.anchorChildren = true
+  buttonGroup.y = -80
+  device:insert(buttonGroup)
+  device.buttons = {}
+  local x, y = 0, 0
+  for i, color in pairs(button_colors) do
+    local button = buttons.new({
+      parent = buttonGroup,
+      x = x,
+      y = y,
+      anchorX = 0,
+      anchorY = 0,
+      width = 100,
+      height = 100,
+      color = color,
+      sound = "audio/button"..i..".wav"
+    })
+    if button.x + button.contentWidth > bg.width * .8 then
+      x = 0
+      y = button.y + button.contentHeight + 15
+    else
+      x = x + button.contentWidth + 15
+    end
+  end
+
 
   -- object listeners
   device.enterFrame = update_battery
@@ -162,7 +201,7 @@ function _M.new(params)
   device:addEventListener('finalize')
 
   -- position & return device object
-  device.anchorChildren = true
+  device.anchorChildren = false
   params.parent:insert(device)
   device.x, device.y = params.x, params.y
   return device
