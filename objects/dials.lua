@@ -1,6 +1,5 @@
 local _M = {}
 local math = math
-local click = audio.loadSound('audio/click.wav')
 local click_distance = 0
 local indicator_lights = require('objects.indicator_lights')
 local vibrator = {vibrate = function() end}
@@ -88,16 +87,16 @@ local function touch_spin(self, event)
       deltaPower = 1 - deltaPower
     end
     click_distance = click_distance + deltaPower*10
-    if (self.mode == 'clockwise' and direction == -1) or (self.mode == 'counterclockwise' and direction == 1) then
+    local bad_spin = (self.mode == 'clockwise' and direction == -1) or (self.mode == 'counterclockwise' and direction == 1)
+    if bad_spin then
       deltaPower = -deltaPower
     end
     if click_distance > 2 then
-      if is_android then
-        media.playSound('audio/click.wav')
+      if bad_spin then
+        PlaySound('audio/bad_spin.wav')
+        vibrator.vibrate(100)
       else
-        audio.play(click)
-      end
-      if is_device then
+        PlaySound('audio/click.wav')
         vibrator.vibrate(1)
       end
       click_distance = 0

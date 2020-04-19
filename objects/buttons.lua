@@ -59,12 +59,8 @@ local function button_touch(self, event)
 end
 
 local function play(self)
-  if self.sound then
-    if is_android then
-      media.playSound(self.soundfile)
-    else
-      audio.play(self.sound)
-    end
+  if self.soundfile then
+    PlaySound(self.soundfile)
   end
 end
 
@@ -83,7 +79,6 @@ function _M.new(params)
   button.anchorChildren = true
   if params.sound then
     button.soundfile = params.sound
-    button.sound = audio.loadSound(params.sound)
   end
 
   local img = display.newImage(button, 'images/button.png', true)

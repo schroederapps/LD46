@@ -5,10 +5,6 @@ local battery_meters = require('objects.battery_meters')
 local indicator_lights = require('objects.indicator_lights')
 local command_bars = require('objects.command_bars')
 local buttons = require('objects.buttons')
-local sounds = {
-  ding = audio.loadSound('audio/ding.wav'),
-  buzz = audio.loadSound('audio/buzz.wav'),
-}
 local theme = 'glass'
 local button_colors = {
   glass = {
@@ -47,8 +43,10 @@ local function reset_game(self)
 end
 
 local function game_over(self)
+  PlaySound('audio/game_over.wav')
   native.showAlert("Game Over", "Crank the battery back up to try again.", {"OK"}, function()
     self.dial.mode = nil
+    self:reset()
   end)
 end
 
@@ -136,7 +134,7 @@ local function button_listener(event)
       device.level = device.level + 5
       the_score = the_score + 100
     else
-      audio.play(sounds.buzz)
+      PlaySound('audio/buzz.wav')
       device.level = device.level - 5
       the_score = the_score - 100
     end
@@ -160,8 +158,7 @@ local function command_bar_listener(event)
   local device = event.target.device
   the_score = the_score - 100
   device.level = device.level - 10
-  audio.play(sounds.buzz)
-  print("!")
+  PlaySound('audio/buzz.wav')
 end
 
 local function finalize(self)
@@ -218,8 +215,8 @@ function _M.new(params)
     anchorY = 1,
     height = 30,
     width = 30,
-    on_sound = sounds.ding,
-    off_sound = sounds.buzz,
+    on_sound = 'audio/ding.wav',
+    off_sound = 'audio/buzz.wav',
   })
   active_game_light:set_color({.2, 1, .2})
   active_game_light.on = false
@@ -308,7 +305,7 @@ function _M.new(params)
   params.parent:insert(device)
   device.x, device.y = params.x, params.y
 
-  --device:reset()
+  device:reset()
   return device
 end
 

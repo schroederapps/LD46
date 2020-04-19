@@ -91,6 +91,21 @@ local function init()
     return formatted
   end
 
+  -- global play sound function to help with Android audio lag
+  local sound_bank = {}
+  function PlaySound(path)
+    if is_android then
+      media.playSound(path)
+    else
+      local handle = sound_bank[path]
+      if not handle then
+        handle = audio.loadSound(path)
+        sound_bank[path] = handle
+      end
+      audio.play(handle)
+    end
+  end
+
   -- global Shuffle table function
   function Shuffle( t )
     local rand = math.random

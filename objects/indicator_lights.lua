@@ -27,8 +27,7 @@ local function set_state(self)
   if self.on then
     if flare.alpha <=.1 then
       if self.on_sound then
-        audio.stop(32)
-        audio.play(self.on_sound, {channel = 32})
+        PlaySound(self.on_sound)
       end
       flare.alpha = .12
       transition.cancel(flare)
@@ -37,8 +36,7 @@ local function set_state(self)
   else
     if flare.alpha >=.99 then
       if self.off_sound then
-        audio.stop(32)
-        audio.play(self.off_sound, {channel = 32})
+        PlaySound(self.off_sound)
       end
       flare.alpha = .98
       transition.cancel(flare)
