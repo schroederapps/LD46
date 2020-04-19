@@ -41,7 +41,7 @@ local function enter_frame(self)
     end
 
     if not self.timer then
-      self.timer = timer.performWithDelay(random(1000, 2500), function()self:drop_gem() end)
+      self.timer = timer.performWithDelay((1-self.device.decaySpeed) * 2000, function()self:drop_gem() end)
     end
   else
     if self.timer then timer.cancel(self.timer) end

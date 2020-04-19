@@ -64,6 +64,16 @@ local function play(self)
   end
 end
 
+local function enter_frame(self)
+  if self.device and not self.device.active then
+    self.img2.blendMode = nil
+    self.img2.alpha = .25
+  else
+    self.img2.blendMode = 'multiply'
+    self.img2.alpha = 1
+  end
+end
+
 local function finalize(self)
   if self.sound then
     audio.dispose( self.sound )
@@ -87,6 +97,7 @@ function _M.new(params)
   img2:setFillColor(unpack(params.color))
   img2.alpha = 1
   img2.blendMode = 'multiply'
+  button.img2 = img2
 
   local glow = display.newImage(button, 'images/button_glow.png', true)
   glow:setFillColor(unpack(params.color))
@@ -108,6 +119,9 @@ function _M.new(params)
   local scaleX = params.width / img.width
   local scaleY = params.height / img.height
   button.xScale, button.yScale = scaleX, scaleY
+
+  button.enterFrame = enter_frame
+  Runtime:addEventListener('enterFrame', button)
 
   button.finalize = finalize
   button:addEventListener('finalize')

@@ -40,13 +40,15 @@ local function reset_game(self)
   self:shuffle()
   self.dial.mode = nil
   self.active = true
+  self.decaySpeed = 0
 end
 
 local function game_over(self)
   PlaySound('audio/game_over.wav')
   native.showAlert("Game Over", "Crank the battery back up to try again.", {"OK"}, function()
     self.dial.mode = nil
-    self:reset()
+    the_score = 0
+    --self:reset()
   end)
 end
 
@@ -79,8 +81,10 @@ local function update_battery(self)
   end
   if self.active then
     local delta = timestamp - last_timestamp
-    local percent = (delta / self.decaySpeed) * 100
-    self.level = self.level - percent
+    self.decaySpeed = self.decaySpeed + delta/100000
+    print(self.decaySpeed)
+    --local percent = (delta / self.decaySpeed) * 100
+    self.level = self.level - self.decaySpeed
     the_score = the_score - delta * .003
     the_score = the_score + self.dial.power * .5
     --if the_score < 0 then the_score = 0 end
@@ -131,7 +135,7 @@ local function button_listener(event)
     local correct = command_bar:check_color(button.color_index)
     if correct then
       button:play()
-      device.level = device.level + 5
+      device.decaySpeed = device.decaySpeed - 1/100
       the_score = the_score + 100
     else
       PlaySound('audio/buzz.wav')
@@ -151,6 +155,8 @@ local function button_listener(event)
         device.dial.mode = modes[n]
       end
     end
+  else
+    PlaySound('audio/thunk.wav')
   end
 end
 
@@ -172,7 +178,7 @@ function _M.new(params)
   local device = display.newGroup()
 
   -- initialize device
-  device.decaySpeed = params.decaySpeed
+  device.decaySpeed = 0--params.decaySpeed
   device.level = 0
 
   -- draw device image
@@ -305,7 +311,7 @@ function _M.new(params)
   params.parent:insert(device)
   device.x, device.y = params.x, params.y
 
-  device:reset()
+  --device:reset()
   return device
 end
 
