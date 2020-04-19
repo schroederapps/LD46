@@ -12,6 +12,7 @@
 * The goal is to keep the device in front of you "alive" by ensuring that its battery does not fully drain. You can monitor the battery level at the top of the device.
 * The device's battery is TERRIBLE. It's constantly draining, at an increasing rate.
 * The battery is charged by a hand-crank mechanism. To keep it alive, use your finger (or mouse) to spin the disc at the bottom of the device. The faster you spin it, the faster it will charge. Spinning the dial will also increase your score.
+* At the start of the game, the battery is completely dead. Crank it up to 100% to begin - once it hits 100%, the game has begun and the battery will start draining.
 * Pay attention to the clockwise/counter-clockwise indicators above the disc - if an arrow is lit up red, don't spin in that direction or else you will cause the battery to drain even faster!
 * The device is actually a musical toy! You can press the various colored buttons while the battery is still alive to make music - but be careful to only press the button that matches the leftmost gem under the battery monitor. Pressing the correct button slightly charges the battery. Pressing the wrong one - you guessed it - will cause the battery to drain faster.
 * You cannot spin the dial and press a button at the same time.
