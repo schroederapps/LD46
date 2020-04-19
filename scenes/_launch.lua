@@ -59,9 +59,11 @@ local function init()
   math.randomseed( os.time() )
 
   -- global settings library
-  Settings = require ('utilities.settings')
-  Settings.init(default_settings)
-
+  if false then
+    Settings = require ('utilities.settings')
+    Settings.init(default_settings)
+  end
+  
   fonts = require('fonts.fonts')
 
   -- global placement functions

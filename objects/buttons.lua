@@ -1,5 +1,8 @@
 local _M = {}
-local vibrator = require('plugin.vibrator')
+local vibrator = {vibrate = function() end}
+pcall(function()
+  vibrator = require('plugin.vibrator')
+end)
 
 --------------------------------------------------------------------------------
 -- PRIVATE FUNCTIONS

@@ -2,7 +2,10 @@ local _M = {}
 local math = math
 local click = audio.loadSound('audio/click.wav')
 local click_distance = 0
-local vibrator = require('plugin.vibrator')
+local vibrator = {vibrate = function() end}
+pcall(function()
+  vibrator = require('plugin.vibrator')
+end)
 --------------------------------------------------------------------------------
 -- PRIVATE FUNCTIONS
 --------------------------------------------------------------------------------
