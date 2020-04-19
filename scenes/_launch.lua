@@ -62,6 +62,8 @@ local function init()
   Settings = require ('utilities.settings')
   Settings.init(default_settings)
 
+  fonts = require('fonts.fonts')
+
   -- global placement functions
   function placeX(px)
     return screenLeft + screenWidth * px
@@ -71,6 +73,20 @@ local function init()
   end
   function placeXY(px, py)
     return placeX(px), placeY(py)
+  end
+
+  -- global comma_value function
+  local math = math
+  local floor = math.floor
+  function comma_value(amount)
+    local formatted = floor(tonumber(amount))
+    while true do
+      formatted, k = string.gsub(formatted, '^(-?%d+)(%d%d%d)', '%1,%2')
+      if (k==0) then
+        break
+      end
+    end
+    return formatted
   end
 
   -- device/environment global variables:

@@ -85,7 +85,6 @@ local function touch_spin(self, event)
       click_distance = 0
     end
     self.power = deltaPower*10
-    print(self.power)
   elseif phase == 'cancelled' or phase == 'ended' then
     self.power = 0
     self.hasFocus = nil

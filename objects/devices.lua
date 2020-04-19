@@ -2,6 +2,12 @@ local _M = {}
 local buttons = require('objects.buttons')
 local dials = require('objects.dials')
 local battery_meters = require('objects.battery_meters')
+local indicator_lights = require('objects.indicator_lights')
+local sounds = {
+  ding = audio.loadSound('audio/ding.wav'),
+  buzz = audio.loadSound('audio/buzz.wav')
+}
+local the_score = 0
 --------------------------------------------------------------------------------
 -- PRIVATE FUNCTIONS
 --------------------------------------------------------------------------------
@@ -32,20 +38,28 @@ local function update_battery(self)
   if last_timestamp == nil then
     last_timestamp = timestamp
   end
-  local delta = timestamp - last_timestamp
-  local percent = (delta / self.decaySpeed) * 100
+  if self.active then
+    local delta = timestamp - last_timestamp
+    local percent = (delta / self.decaySpeed) * 100
+    self.level = self.level - percent
+    the_score = the_score - delta * .003
+    the_score = the_score + self.dial.power * .5
+    if the_score < 0 then the_score = 0 end
+  end
   last_timestamp = timestamp
-  self.level = self.level - percent
   self.level = self.level + self.dial.power
-  if self.level > 100 then
+  self.meter.barGroup.alpha = self.level/100 + .25
+  self.active_game_light.on = self.active
+  self.score_display.text = comma_value(the_score)
+  if self.level >= 100 then
     self.level = 100
-  elseif self.level < 0 then
-    last_timestamp = nil
-    Runtime:removeEventListener('enterFrame', self)
-    native.showAlert("Game Over", "testing", {"start over!"}, function()
-      self.level = 100
-      Runtime:addEventListener('enterFrame', self)
-    end)
+    self.active = true
+  elseif self.level <= 0 then
+    if self.active then
+      last_timestamp = nil
+      self.active = false
+      native.showAlert("Game Over", "Crank the battery back up to try again.", {"OK"}, function() the_score = 0 end)
+    end
   end
   self.meter.level = self.level
 end
@@ -59,11 +73,12 @@ end
 function _M.new(params)
   local params = set_defaults(params)
   local device = display.newGroup()
-  device.anchorChildren = true
-  params.parent:insert(device)
-  device.decaySpeed = params.decaySpeed
-  device.level = 100
 
+  -- initialize device
+  device.decaySpeed = params.decaySpeed
+  device.level = 0
+
+  -- draw device image
   local border = display.newRoundedRect(device, 0, 0, params.width, params.height, params.cornerRadius + params.strokeWidth * .5)
   border.fill = {
     type = 'image',
@@ -77,6 +92,7 @@ function _M.new(params)
     filename = 'images/plastic.png',
   }
 
+  -- add the dial
   local dial = dials.new({
     x = 0,
     y = params.height * .3,
@@ -86,6 +102,7 @@ function _M.new(params)
   dial.base:setFillColor(unpack(params.strokeColor))
   device.dial = dial
 
+  -- add the battery meter
   local meter = battery_meters.new({
     parent = device,
     y = -params.height * .4,
@@ -96,12 +113,57 @@ function _M.new(params)
   })
   device.meter = meter
 
+  -- add the active game light
+  local active_game_light = indicator_lights.new({
+    parent = device,
+    x = meter.x + meter.width * .49,
+    y = meter.y - meter.height * .5,
+    anchorX = 1,
+    anchorY = 1,
+    height = 30,
+    width = 30,
+    on_sound = sounds.ding,
+    off_sound = sounds.buzz,
+  })
+  active_game_light:set_color({0, 1, 0})
+  active_game_light.on = false
+  device.active_game_light = active_game_light
+
+  -- scoreboard
+  local score_label = display.newText({
+    parent = device,
+    text = 'SCORE:',
+    font = fonts.archistico,
+    fontSize = 20,
+    x = meter.x - meter.width * .47,
+    y = meter.y - meter.height * .5,
+  })
+  score_label.anchorX, score_label.anchorY = 0, 1
+  score_label:setFillColor(.8)
+
+  local score_display = display.newText({
+    parent = device,
+    text = comma_value(the_score),
+    font = fonts.archistico,
+    fontSize = 28,
+    x = score_label.x + score_label.width + 5,
+    y = score_label.y,
+  })
+  score_display.anchorX, score_display.anchorY = 0, 1
+  score_display:setFillColor(1)
+  device.score_display = score_display
+
+
+  -- object listeners
   device.enterFrame = update_battery
   Runtime:addEventListener('enterFrame', device)
 
   device.finalize = finalize
   device:addEventListener('finalize')
 
+  -- position & return device object
+  device.anchorChildren = true
+  params.parent:insert(device)
   device.x, device.y = params.x, params.y
   return device
 end

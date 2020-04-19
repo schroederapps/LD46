@@ -51,15 +51,16 @@ function _M.new(params)
   base.alpha = .75
 
   local bars = {}
-  local barsGroup = display.newGroup()
-  barsGroup.anchorChildren = true
-  meter:insert(barsGroup)
+  local barGroup = display.newGroup()
+  meter.barGroup = barGroup
+  barGroup.anchorChildren = true
+  meter:insert(barGroup)
   local num_bars = 20
   local bar_width = (params.width - params.cornerRadius*2) / (num_bars * 2)
   for i = 1, num_bars do
-    local bar = display.newRoundedRect(barsGroup, (bar_width * i * 2), 0, bar_width, params.height - params.cornerRadius, bar_width * .25)
+    local bar = display.newRoundedRect(barGroup, (bar_width * i * 2), 0, bar_width, params.height - params.cornerRadius, bar_width * .25)
     bars[i] = bar
-    local g = 1-(num_bars/i - 1)
+    local g = (2.25-(num_bars/i - 1))
     local r = (num_bars/i - 1)
     bar:setFillColor(r, g, 0)
     bar.blendMode = 'screen'
