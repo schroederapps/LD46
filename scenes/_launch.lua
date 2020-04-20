@@ -10,6 +10,14 @@ local default_settings = {
 
 }
 
+-- remove alerts on web
+local is_web_build = false
+if is_web_build then
+  function native.showAlert()
+
+  end
+end
+
 -- special simulator-only conditions
 local function simulator_conditions()
   --Settings.reset()
