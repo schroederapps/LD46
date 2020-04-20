@@ -56,6 +56,7 @@ local function drop_gem(self)
   if #self.gems >= 6 then
     self:dispatchEvent({name = 'overflow', target = self})
     self.last_x = self.last_x - self.gap
+    self.device.streak = 0
     local first_gem = self.gems[1]
     table.remove(self.gems, 1)
     display.remove(first_gem)

@@ -142,8 +142,8 @@ local function button_listener(event)
     if correct then
       button:play()
       device.decaySpeed = device.decaySpeed - 1/100
-      device.streak = device.streak + 1
       local streak_bonus = device.streak * 25
+      device.streak = device.streak + 1
       local points = 100 + streak_bonus
       the_score = the_score + points
       local note_text = comma_value(points).."!"
