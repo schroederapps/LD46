@@ -82,7 +82,6 @@ local function update_battery(self)
   if self.active then
     local delta = timestamp - last_timestamp
     self.decaySpeed = self.decaySpeed + delta/100000
-    print(self.decaySpeed)
     --local percent = (delta / self.decaySpeed) * 100
     self.level = self.level - self.decaySpeed
     the_score = the_score - delta * .003
@@ -136,8 +135,13 @@ local function button_listener(event)
     if correct then
       button:play()
       device.decaySpeed = device.decaySpeed - 1/100
+      device.streak = device.streak + 1
+      local streak_bonus = device.streak * 25
       the_score = the_score + 100
     else
+      local streak_bonus = device.streak * 25
+      the_score = the_score + streak_bonus
+      device.streak = 0
       PlaySound('audio/buzz.wav')
       device.level = device.level - 5
       the_score = the_score - 100
@@ -180,6 +184,7 @@ function _M.new(params)
   -- initialize device
   device.decaySpeed = 0--params.decaySpeed
   device.level = 0
+  device.streak = 0
 
   -- draw device image
   local bg = display.newRoundedRect(device, 0, 0, params.width - params.strokeWidth, params.height - params.strokeWidth, params.cornerRadius)
@@ -199,6 +204,7 @@ function _M.new(params)
     parent = device,
   })
   device.dial = dial
+  dial.device = device
 
   -- add the battery meter
   local meter = battery_meters.new({

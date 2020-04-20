@@ -67,6 +67,7 @@ local function touch_spin(self, event)
     self.hasFocus = false
     display.currentStage:setFocus(nil, event.id)
   elseif not self.hasFocus then
+    self.device.streak = 0
     self.hasFocus = true
     display.currentStage:setFocus(self, event.id)
     self.touch_angle = angle
@@ -92,12 +93,15 @@ local function touch_spin(self, event)
       deltaPower = -deltaPower
     end
     if click_distance > 2 then
+      local vibe_time = 1
       if bad_spin then
         PlaySound('audio/bad_spin.wav')
-        vibrator.vibrate(100)
+        vibe_time = 100
       else
         PlaySound('audio/click.wav')
-        vibrator.vibrate(1)
+      end
+      if is_device then
+        vibrator.vibrate(vibe_time)
       end
       click_distance = 0
     end
