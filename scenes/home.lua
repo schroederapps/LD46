@@ -61,6 +61,7 @@ function scene:create( event )
 
   release_bubble()
 
+  native.showAlert("Let's Play!", "This device's battery is dead - but it can be charged by spinning that disk. Spin it up to full power to get started, then KEEP IT ALIVE!", {"OK"})
 
 end
 

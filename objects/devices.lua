@@ -33,6 +33,7 @@ local button_colors = {
   }
 }
 local the_score = 0
+local start_time = system.getTimer()
 --------------------------------------------------------------------------------
 -- PRIVATE FUNCTIONS
 --------------------------------------------------------------------------------
@@ -43,11 +44,15 @@ local function reset_game(self)
   self.dial.mode = nil
   self.active = true
   self.decaySpeed = 0
+  start_time = system.getTimer()
 end
 
 local function game_over(self)
+  local play_time = (system.getTimer() - start_time) / 1000
+  local minutes = math.floor(play_time/60)
+  local seconds = math.floor(play_time%60)
   PlaySound('audio/game_over.wav')
-  native.showAlert("Game Over", "Crank the battery back up to try again.", {"OK"}, function()
+  native.showAlert("Game Over", "You kept the battery alive for " .. minutes .. " minutes and " .. seconds .. " seconds. You earned " .. comma_value(the_score) .. " points.\n\nSpin the battery back up to 100% to try again!", {"OK"}, function()
     self.dial.mode = nil
     the_score = 0
     --self:reset()
