@@ -88,7 +88,7 @@ local function update_battery(self)
   end
   if self.active then
     local delta = timestamp - last_timestamp
-    self.decaySpeed = self.decaySpeed + delta/100000
+    self.decaySpeed = self.decaySpeed + delta/50000
     --local percent = (delta / self.decaySpeed) * 100
     self.level = self.level - self.decaySpeed
     the_score = the_score - delta * .003
