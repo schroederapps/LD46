@@ -1,10 +1,12 @@
 local _M = {}
+local random = math.random
 local buttons = require('objects.buttons')
 local dials = require('objects.dials')
 local battery_meters = require('objects.battery_meters')
 local indicator_lights = require('objects.indicator_lights')
 local command_bars = require('objects.command_bars')
 local buttons = require('objects.buttons')
+local notifications = require('objects.notifications')
 local theme = 'glass'
 local button_colors = {
   glass = {
@@ -137,24 +139,33 @@ local function button_listener(event)
       device.decaySpeed = device.decaySpeed - 1/100
       device.streak = device.streak + 1
       local streak_bonus = device.streak * 25
-      the_score = the_score + 100
+      local points = 100 + streak_bonus
+      the_score = the_score + points
+      local note_text = comma_value(points).."!"
+      if device.streak%5 == 0 then
+        note_text = device.streak .. " note streak!\n"..comma_value(points)
+      end
+      notifications.new({
+        x = event.x,
+        y = event.y,
+        text = note_text,
+        color = button.color,
+      })
     else
-      local streak_bonus = device.streak * 25
-      the_score = the_score + streak_bonus
       device.streak = 0
       PlaySound('audio/buzz.wav')
       device.level = device.level - 5
       the_score = the_score - 100
     end
-    local shuffle1 = math.random()
-    local shuffle2 = math.random()
+    local shuffle1 = random()
+    local shuffle2 = random()
     if math.abs(shuffle1 - shuffle2) < .05 then
       device:shuffle()
     else
-      local mode1 = math.random()
-      local mode2 = math.random()
+      local mode1 = random()
+      local mode2 = random()
       if math.abs(mode1 - mode2) < .05 then
-        local n = math.random(3)
+        local n = random(3)
         local modes = {'clockwise', 'counterclockwise', nil}
         device.dial.mode = modes[n]
       end

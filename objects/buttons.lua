@@ -40,7 +40,7 @@ local function button_touch(self, event)
     self.hasFocus = true
     display.currentStage:setFocus(self, event.id)
     glow.alpha = 1
-    button:dispatchEvent({name = 'button_pressed', target = button})
+    button:dispatchEvent({name = 'button_pressed', target = button, x  = event.x, y = event.y})
     if is_device then
       vibrator.cancel()
       vibrator.vibrate(1)
@@ -87,6 +87,7 @@ function _M.new(params)
   local params = set_defaults(params)
   local button = display.newGroup()
   button.anchorChildren = true
+  button.color = params.color
   if params.sound then
     button.soundfile = params.sound
   end
